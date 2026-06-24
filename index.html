@@ -3403,6 +3403,9 @@ function App() {
 
 
 window.__mountCRM = function() {
+  // Set data right before React reads it
+  INIT = window.CRM_DATA.affiliates || [];
+  INIT_SOW = window.CRM_DATA.sow || [];
   var root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(React.createElement(App));
 };
