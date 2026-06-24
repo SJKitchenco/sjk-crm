@@ -2816,7 +2816,7 @@ var INIT_SOW = [];
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════
 function App() {
-  var _React$useState37 = React.useState("outreach"),
+  var _React$useState37 = React.useState("kontek"),
     _React$useState38 = _slicedToArray(_React$useState37, 2),
     tab = _React$useState38[0],
     setTab = _React$useState38[1];
@@ -2840,6 +2840,7 @@ function App() {
     _React$useState46 = _slicedToArray(_React$useState45, 2),
     kurasiQueue = _React$useState46[0],
     setKurasiQueue = _React$useState46[1];
+  var _React$useStateS1 = React.useState(""), _slicedS1 = _slicedToArray(_React$useStateS1, 2), searchQuery = _slicedS1[0], setSearchQuery = _slicedS1[1];
   var _React$useStateN1 = React.useState(10), _slicedN1 = _slicedToArray(_React$useStateN1, 2), showNew = _slicedN1[0], setShowNew = _slicedN1[1];
   var _React$useStateN2 = React.useState(10), _slicedN2 = _slicedToArray(_React$useStateN2, 2), showWaiting = _slicedN2[0], setShowWaiting = _slicedN2[1];
   var _React$useStateN3 = React.useState(10), _slicedN3 = _slicedToArray(_React$useStateN3, 2), showFollowup = _slicedN3[0], setShowFollowup = _slicedN3[1];
@@ -2854,17 +2855,18 @@ function App() {
     month: "long",
     year: "numeric"
   });
+  var _searchQ = searchQuery.toLowerCase().trim();
   var newOnes = affiliates.filter(function (a) {
-    return a.section === "new";
+    return a.section === "new" && (!_searchQ || a.username.toLowerCase().includes(_searchQ));
   });
   var waiting = affiliates.filter(function (a) {
-    return a.section === "waiting";
+    return a.section === "waiting" && (!_searchQ || a.username.toLowerCase().includes(_searchQ));
   });
   var followups = affiliates.filter(function (a) {
-    return a.section === "followup";
+    return a.section === "followup" && (!_searchQ || a.username.toLowerCase().includes(_searchQ));
   });
   var reapproach = affiliates.filter(function (a) {
-    return a.section === "reapproach";
+    return a.section === "reapproach" && (!_searchQ || a.username.toLowerCase().includes(_searchQ));
   });
   var sowSample = sowData.filter(function (a) {
     return a.section === "sow_sample";
@@ -3122,17 +3124,17 @@ function App() {
     }));else showToast("Tidak lolos — dilewati");
   };
   var TABS = [{
-    id: "outreach",
-    label: "Outreach",
+    id: "kontek",
+    label: "Kontek Affiliate",
     badge: newOnes.length + waiting.length + followups.length
   }, {
-    id: "sow",
-    label: "SOW",
+    id: "deal",
+    label: "Deal Affiliate",
     badge: sowSample.length + sowActive.length,
     urgent: needRaise > 0
   }, {
-    id: "input",
-    label: "Tambah",
+    id: "listing",
+    label: "Listing Affiliate",
     badge: kurasiQueue.length
   }];
   var tabStyle = function tabStyle(t) {
@@ -3279,7 +3281,21 @@ function App() {
       maxWidth: 560,
       margin: "0 auto"
     }
-  }, tab === "outreach" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, tab === "kontek" && /*#__PURE__*/React.createElement("div", null,
+  /*#__PURE__*/React.createElement("div", {
+    style: { position: "relative", marginBottom: 14 }
+  },
+  /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Cari username...",
+    value: searchQuery,
+    onChange: function(e) { setSearchQuery(e.target.value); setShowNew(10); setShowWaiting(10); setShowFollowup(10); setShowReapproach(10); },
+    style: { width: "100%", padding: "10px 14px 10px 36px", borderRadius: 6, border: "1px solid #E5E5E5", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#fff" }
+  }),
+  /*#__PURE__*/React.createElement("span", {
+    style: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#AAAAAA", fontSize: 14 }
+  }, "⌕")),
+  /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(3,1fr)",
@@ -3287,7 +3303,7 @@ function App() {
       marginBottom: 20
     }
   }, [{
-    label: "Belum Kontak",
+    label: "Affiliate Tersedia",
     val: newOnes.length,
     color: C.black
   }, {
@@ -3325,11 +3341,11 @@ function App() {
       }
     }, m.val));
   })), /*#__PURE__*/React.createElement(SectionHead, {
-    title: "Belum Dikontek",
+    title: "Affiliate Tersedia",
     count: newOnes.length,
     accent: C.black
   }), newOnes.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
-    label: "affiliate baru"
+    label: "affiliate tersedia"
   }) : newOnes.slice(0, showNew).map(function (a) {
     return /*#__PURE__*/React.createElement(NewCard, {
       key: a.id,
@@ -3388,7 +3404,7 @@ function App() {
       aff: a,
       onAction: handleAction
     });
-  })), tab === "sow" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  })), tab === "deal" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(3,1fr)",
@@ -3400,7 +3416,7 @@ function App() {
     val: sowSample.length,
     color: C.blue
   }, {
-    label: "SOW Active",
+    label: "Deal Active",
     val: sowActive.length,
     color: C.amber
   }, {
@@ -3470,7 +3486,7 @@ function App() {
       aff: a,
       onAction: handleAction
     });
-  })), tab === "input" && /*#__PURE__*/React.createElement(InputTab, {
+  })), tab === "listing" && /*#__PURE__*/React.createElement(InputTab, {
     onSubmitSingle: handleNew,
     onBulkUpload: handleBulkUpload,
     kurasiQueue: kurasiQueue,
