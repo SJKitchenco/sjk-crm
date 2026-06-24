@@ -131,7 +131,7 @@ window.CRM_DATA = {
     return supaFetch("sow?id=eq." + sowEntry.id, { method: "PATCH", body: JSON.stringify(patch) });
   },
 
-  insertSOW: function(username, tglKirim) {
+  insertSOW: function(username, tglKirim, aff) {
     var today = tglKirim || new Date().toISOString().split("T")[0];
     var h7  = new Date(today); h7.setDate(h7.getDate()+7);
     var h12 = new Date(today); h12.setDate(h12.getDate()+12);
@@ -141,6 +141,10 @@ window.CRM_DATA = {
       method: "POST",
       body: JSON.stringify({
         username: username,
+        nama_wa: (aff && aff.wa) || null,
+        niche: (aff && aff.niche) || null,
+        tgl_deal: today,
+        product_sample: "Tempe Tabur (Ori + Pedas + Komplit)",
         tgl_kirim: today,
         h7: fmt(h7),
         h12: fmt(h12),
@@ -2969,7 +2973,7 @@ function App() {
                   window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Approved"
                   });
-                  window.CRM_DATA && window.CRM_DATA.insertSOW(a.username, todayISO);
+                  window.CRM_DATA && window.CRM_DATA.insertSOW(a.username, todayISO, a);
                   return _objectSpread(_objectSpread({}, a), {}, {
                     status: "Approved",
                     section: "sow_sample",
@@ -3052,7 +3056,8 @@ function App() {
             }
                         if (action === "approved" && aff) {
               var today14 = addDays(todayISO, 14);
-              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
+              var today14 = addDays(todayISO, 14);
+              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
               setSowData(function(prev) { return prev.concat([newSOW]); });
             }
             msgs = {
