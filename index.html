@@ -3051,18 +3051,18 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
                 followers: aff.followers,
                 niche: aff.niche,
               };
-              setSowData(function(prev) { return [].concat(prev, [newSOW]); });
+              setSOWData(function(prev) { return [].concat(prev, [newSOW]); });
             }
             if (action === "approved" && aff) {
               var today14 = addDays(todayISO, 14);
               var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers, niche: aff.niche };
-              setSowData(function(prev) { return prev.concat([newSOW]); });
+              setSOWData(function(prev) { return prev.concat([newSOW]); });
             }
                         if (action === "approved" && aff) {
               var today14 = addDays(todayISO, 14);
               var today14 = addDays(todayISO, 14);
               var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
-              setSowData(function(prev) { return prev.concat([newSOW]); });
+              setSOWData(function(prev) { return prev.concat([newSOW]); });
             }
             msgs = {
               kirim_wa: "WA terkirim",
