@@ -193,30 +193,27 @@ function toSection(a) {
   var reapproach = a.reapproach_date;
 
   if (status === "Not Relevant") return "done";
-  if (kurasi !== "Yes") return "new";
-  if (status === "On Discuss") return "followup";
+  if (kurasi !== "Yes") return "done";
   if (status === "Approved") return "done";
 
-  // Never contacted
-  if (!tgl) return "new";
+  // On Discuss → follow up
+  if (status === "On Discuss") return "followup";
 
-  if (status === "Not Response") {
-    // If reapproach date exists and is due → reapproach
-    if (reapproach && new Date(reapproach) <= new Date()) return "reapproach";
-    // If tgl_kontak within last 3 days → still waiting
-    var daysSince = Math.floor((Date.now() - new Date(tgl).getTime()) / 86400000);
-    if (daysSince <= 3) return "waiting";
-    // Older than 3 days with reapproach not yet due → still show in waiting
-    // so admin can mark Not Response manually
-    return "waiting";
+  // Re-approach due
+  if ((status === "Not Response" || status === "Reject") && reapproach && new Date(reapproach) <= new Date()) {
+    return "reapproach";
   }
 
-  if (status === "Reject") {
-    if (reapproach && new Date(reapproach) <= new Date()) return "reapproach";
-    return "done";
-  }
+  // Not Response → waiting (still in conversation window)
+  if (status === "Not Response" && tgl) return "waiting";
 
-  // Contacted but no status yet
+  // Reject not yet due → hide
+  if (status === "Reject") return "done";
+
+  // Never contacted → new
+  if (!tgl && (!status || status === "" || status === "Baru")) return "new";
+
+  // Contacted but no status yet → waiting
   if (tgl && (!status || status === "")) return "waiting";
 
   return "done";
@@ -287,8 +284,33 @@ function loadData() {
   document.getElementById("loadMsg").textContent = "Menghubungi database...";
   var today = new Date().toISOString().split("T")[0];
 
+  var today30 = new Date(); today30.setDate(today30.getDate()-30);
+  var date30 = today30.toISOString().split("T")[0];
+
+  // Server-side filter: only load relevant affiliates
+  var filters = [
+    // 1. Belum dikontak sama sekali (Affiliate Tersedia)
+    "affiliates?select=*&kurasi=eq.Yes&tgl_kontak=is.null&status=in.(,Baru)&order=listing_date.asc&limit=200",
+    // 2. Menunggu balasan (dikontak, belum balas, dalam 30 hari)
+    "affiliates?select=*&kurasi=eq.Yes&status=eq.Not Response&tgl_kontak=gte." + date30 + "&order=tgl_kontak.asc&limit=500",
+    // 3. On Discuss
+    "affiliates?select=*&kurasi=eq.Yes&status=eq.On Discuss&order=tgl_kontak.asc",
+    // 4. Re-approach due today
+    "affiliates?select=*&kurasi=eq.Yes&reapproach_date=lte." + today + "&status=in.(Not Response,Reject)&order=reapproach_date.asc&limit=100",
+  ];
+
   return Promise.all([
-    supaFetch("affiliates?select=*&order=id.asc&limit=2000"),
+    Promise.all(filters.map(function(f) { return supaFetch(f); })).then(function(results) {
+      // Merge and deduplicate by id
+      var seen = {};
+      var merged = [];
+      results.forEach(function(rows) {
+        (rows || []).forEach(function(row) {
+          if (!seen[row.id]) { seen[row.id] = true; merged.push(row); }
+        });
+      });
+      return merged;
+    }),
     supaFetch("sow?select=*&order=id.asc"),
     supaFetch("daily_tracker?tanggal=eq." + today),
   ]).then(function(results) {
