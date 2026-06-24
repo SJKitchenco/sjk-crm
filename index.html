@@ -3031,38 +3031,53 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               });
             });
             // Update sowData when approved
+            // SOW state updates
             if (action === "approved" && aff) {
-              var today14 = addDays(todayISO, 14);
-              var newSOW = {
-                id: Date.now(),
-                rowIndex: Date.now(),
-                username: aff.username,
-                tglKirim: todayISO,
-                h14: today14,
-                vts: [],
-                totalVT: 0,
-                status: "Barang Dikirim",
-                section: "sow_sample",
-                sowStart: null,
-                komisi: 6,
-                gmv: "",
-                notes: "",
-                wa: aff.wa,
-                followers: aff.followers,
-                niche: aff.niche,
-              };
-              setSOWData(function(prev) { return [].concat(prev, [newSOW]); });
-            }
-            if (action === "approved" && aff) {
-              var today14 = addDays(todayISO, 14);
-              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers, niche: aff.niche };
-              setSOWData(function(prev) { return prev.concat([newSOW]); });
-            }
-                        if (action === "approved" && aff) {
-              var today14 = addDays(todayISO, 14);
               var today14 = addDays(todayISO, 14);
               var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
-              setSOWData(function(prev) { return prev.concat([newSOW]); });
+              setSOWData(function(prev) {
+                var exists = prev.some(function(s) { return s.username === aff.username; });
+                if (exists) return prev;
+                return prev.concat([newSOW]);
+              });
+            }
+            if (action === "sow_start" && aff) {
+              setSOWData(function(prev) {
+                return prev.map(function(s) {
+                  if (s.username !== aff.username) return s;
+                  return Object.assign({}, s, { section: "sow_active", status: "On Progress", sowStart: todayISO });
+                });
+              });
+            }
+            if (action === "sow_complete" && aff) {
+              setSOWData(function(prev) {
+                return prev.map(function(s) {
+                  if (s.username !== aff.username) return s;
+                  return Object.assign({}, s, { section: "sow_complete", status: "SOW Lengkap" });
+                });
+              });
+            }
+            if (action === "raise_komisi" && aff) {
+              setSOWData(function(prev) {
+                return prev.map(function(s) {
+                  if (s.username !== aff.username) return s;
+                  return Object.assign({}, s, { komisi: 9 });
+                });
+              });
+            }
+            if (action === "add_vt" && aff) {
+              setSOWData(function(prev) {
+                return prev.map(function(s) {
+                  if (s.username !== aff.username) return s;
+                  var newVts = (s.vts || []).concat([{ link: payload, tgl: todayISO }]);
+                  return Object.assign({}, s, {
+                    vts: newVts,
+                    totalVT: newVts.length,
+                    status: newVts.length >= 4 ? "SOW Lengkap" : "On Progress",
+                    section: newVts.length >= 4 ? "sow_complete" : "sow_active"
+                  });
+                });
+              });
             }
             msgs = {
               kirim_wa: "WA terkirim",
