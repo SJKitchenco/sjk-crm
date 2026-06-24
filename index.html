@@ -2825,10 +2825,12 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
     _React$useState40 = _slicedToArray(_React$useState39, 2),
     affiliates = _React$useState40[0],
     setAffiliates = _React$useState40[1];
+  window.__setAffiliates = setAffiliates;
   var _React$useState41 = React.useState(initSow),
     _React$useState42 = _slicedToArray(_React$useState41, 2),
     sowData = _React$useState42[0],
     setSOWData = _React$useState42[1];
+  window.__setSOWData = setSOWData;
   var _React$useState43 = React.useState(window.CRM ? window.CRM_DATA.dailyTracker : {
       tikTok: 0,
       wa: 0,
@@ -3031,26 +3033,27 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               });
             });
             // Update sowData when approved
-            // SOW state updates
+            // SOW state updates via window.__setSOWData
             if (action === "approved" && aff) {
               var today14 = addDays(todayISO, 14);
               var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
-              setSOWData(function(prev) {
+              if (window.__setSOWData) window.__setSOWData(function(prev) {
                 var exists = prev.some(function(s) { return s.username === aff.username; });
                 if (exists) return prev;
                 return prev.concat([newSOW]);
               });
             }
             if (action === "sow_start" && aff) {
-              setSOWData(function(prev) {
+              if (window.__setSOWData) window.__setSOWData(function(prev) {
                 return prev.map(function(s) {
                   if (s.username !== aff.username) return s;
                   return Object.assign({}, s, { section: "sow_active", status: "On Progress", sowStart: todayISO });
                 });
               });
+              window.CRM_DATA && supaFetch("sow?username=eq." + encodeURIComponent(aff.username), { method: "PATCH", body: JSON.stringify({ status: "On Progress" }) });
             }
             if (action === "sow_complete" && aff) {
-              setSOWData(function(prev) {
+              if (window.__setSOWData) window.__setSOWData(function(prev) {
                 return prev.map(function(s) {
                   if (s.username !== aff.username) return s;
                   return Object.assign({}, s, { section: "sow_complete", status: "SOW Lengkap" });
@@ -3058,7 +3061,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               });
             }
             if (action === "raise_komisi" && aff) {
-              setSOWData(function(prev) {
+              if (window.__setSOWData) window.__setSOWData(function(prev) {
                 return prev.map(function(s) {
                   if (s.username !== aff.username) return s;
                   return Object.assign({}, s, { komisi: 9 });
@@ -3066,7 +3069,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               });
             }
             if (action === "add_vt" && aff) {
-              setSOWData(function(prev) {
+              if (window.__setSOWData) window.__setSOWData(function(prev) {
                 return prev.map(function(s) {
                   if (s.username !== aff.username) return s;
                   var newVts = (s.vts || []).concat([{ link: payload, tgl: todayISO }]);
