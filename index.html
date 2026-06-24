@@ -1467,7 +1467,7 @@ function SampleCard(_ref13) {
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
-      return onAction(aff.id, "sow_start");
+      return onAction(aff.username, "sow_start");
     },
     style: {
       padding: "11px 14px",
@@ -1675,7 +1675,7 @@ function SOWCard(_ref14) {
   }), /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       if (newLink.trim()) {
-        onAction(aff.id, "add_vt", newLink.trim());
+        onAction(aff.username, "add_vt", newLink.trim());
         setNewLink("");
       }
     },
@@ -1693,7 +1693,7 @@ function SOWCard(_ref14) {
     }
   }, "Simpan"))), total >= 4 && /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
-      return onAction(aff.id, "sow_complete");
+      return onAction(aff.username, "sow_complete");
     },
     style: {
       width: "100%",
@@ -1807,7 +1807,7 @@ function SOWCompleteCard(_ref15) {
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
-      return onAction(aff.id, "raise_komisi");
+      return onAction(aff.username, "raise_komisi");
     },
     style: {
       padding: "11px",
@@ -2899,11 +2899,12 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
       return _regenerator().w(function (_context2) {
         while (1) switch (_context2.n) {
           case 0:
-            aff = affiliates.find(function (a) {
-              return a.id === id;
-            }) || sowData.find(function (a) {
-              return a.id === id;
-            });
+            var _sowActions = ["sow_start","sow_complete","raise_komisi","add_vt"];
+            if (_sowActions.indexOf(action) !== -1) {
+              aff = sowData.find(function (a) { return a.username === id || a.id === id; });
+            } else {
+              aff = affiliates.find(function (a) { return a.id === id; });
+            }
             todayISO = new Date().toISOString().split("T")[0];
             setAffiliates(function (prev) {
               return prev.map(function (a) {
