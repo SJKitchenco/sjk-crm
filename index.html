@@ -198,8 +198,9 @@ function toSOWSection(s) {
   var st = s.status || "";
   if (st === "SOW Lengkap") return "sow_complete";
   if (st === "On Progress") return "sow_active";
-  if (st === "Barang Dikirim") return "sow_sample";
-  return "done";
+  if (st === "Barang Dikirim" || st === "" || st === null) return "sow_sample";
+  if (st === "Belum Kirim") return "sow_sample";
+  return "sow_sample"; // default show in sample
 }
 
 function mapAffiliate(a) {
@@ -2868,14 +2869,15 @@ function App() {
   var reapproach = affiliates.filter(function (a) {
     return a.section === "reapproach" && (!_searchQ || a.username.toLowerCase().includes(_searchQ));
   });
+  var _sowQ = searchQuery.toLowerCase().trim();
   var sowSample = sowData.filter(function (a) {
-    return a.section === "sow_sample";
+    return a.section === "sow_sample" && (!_sowQ || a.username.toLowerCase().includes(_sowQ));
   });
   var sowActive = sowData.filter(function (a) {
-    return a.section === "sow_active";
+    return a.section === "sow_active" && (!_sowQ || a.username.toLowerCase().includes(_sowQ));
   });
   var sowDone = sowData.filter(function (a) {
-    return a.section === "sow_complete";
+    return a.section === "sow_complete" && (!_sowQ || a.username.toLowerCase().includes(_sowQ));
   });
   var urgentWaiting = waiting.filter(function (a) {
     return daysSince(a.tglKontak) >= 3;
@@ -3404,7 +3406,21 @@ function App() {
       aff: a,
       onAction: handleAction
     });
-  })), tab === "deal" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  })), tab === "deal" && /*#__PURE__*/React.createElement("div", null,
+  /*#__PURE__*/React.createElement("div", {
+    style: { position: "relative", marginBottom: 14 }
+  },
+  /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Cari username...",
+    value: searchQuery,
+    onChange: function(e) { setSearchQuery(e.target.value); },
+    style: { width: "100%", padding: "10px 14px 10px 36px", borderRadius: 6, border: "1px solid #E5E5E5", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#fff" }
+  }),
+  /*#__PURE__*/React.createElement("span", {
+    style: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#AAAAAA", fontSize: 14 }
+  }, "\u2315")),
+  /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(3,1fr)",
