@@ -142,14 +142,30 @@ function toSection(a) {
   if (status === "Not Relevant") return "done";
   if (kurasi !== "Yes") return "new";
   if (status === "On Discuss") return "followup";
+  if (status === "Approved") return "done";
+
+  // Never contacted
   if (!tgl) return "new";
-  if (status === "Not Response" || status === "Reject") {
+
+  if (status === "Not Response") {
+    // If reapproach date exists and is due → reapproach
     if (reapproach && new Date(reapproach) <= new Date()) return "reapproach";
-    if (!reapproach) return "waiting";
+    // If tgl_kontak within last 3 days → still waiting
+    var daysSince = Math.floor((Date.now() - new Date(tgl).getTime()) / 86400000);
+    if (daysSince <= 3) return "waiting";
+    // Older than 3 days with reapproach not yet due → still show in waiting
+    // so admin can mark Not Response manually
+    return "waiting";
+  }
+
+  if (status === "Reject") {
+    if (reapproach && new Date(reapproach) <= new Date()) return "reapproach";
     return "done";
   }
-  if (status === "Approved") return "done";
-  if (tgl && !status) return "waiting";
+
+  // Contacted but no status yet
+  if (tgl && (!status || status === "")) return "waiting";
+
   return "done";
 }
 
