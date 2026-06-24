@@ -2784,8 +2784,8 @@ function InputTab(_ref25) {
 }
 
 // Data loaded from Sheets via CRM API
-var INIT = window.CRM ? window.CRM.affiliates : [];
-var INIT_SOW = window.CRM ? window.CRM.sow : [];
+var INIT = [];
+var INIT_SOW = [];
 
 // ═══════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -2841,13 +2841,13 @@ function App() {
   var reapproach = affiliates.filter(function (a) {
     return a.section === "reapproach";
   });
-  var sowSample = affiliates.filter(function (a) {
+  var sowSample = sowData.filter(function (a) {
     return a.section === "sow_sample";
   });
-  var sowActive = affiliates.filter(function (a) {
+  var sowActive = sowData.filter(function (a) {
     return a.section === "sow_active";
   });
-  var sowDone = affiliates.filter(function (a) {
+  var sowDone = sowData.filter(function (a) {
     return a.section === "sow_complete";
   });
   var urgentWaiting = waiting.filter(function (a) {
@@ -3422,7 +3422,6 @@ function App() {
 
 
 window.__mountCRM = function() {
-  // Set data right before React reads it
   INIT = window.CRM_DATA.affiliates || [];
   INIT_SOW = window.CRM_DATA.sow || [];
   var root = ReactDOM.createRoot(document.getElementById("root"));
