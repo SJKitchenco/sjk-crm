@@ -2873,6 +2873,9 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
     setKurasiQueue = _React$useState46[1];
   var _React$useStateS1 = React.useState(""), _slicedS1 = _slicedToArray(_React$useStateS1, 2), searchQuery = _slicedS1[0], setSearchQuery = _slicedS1[1];
   var _React$useStateN1 = React.useState(10), _slicedN1 = _slicedToArray(_React$useStateN1, 2), showNew = _slicedN1[0], setShowNew = _slicedN1[1];
+  var _React$useStateSS = React.useState(10), _slicedSS = _slicedToArray(_React$useStateSS, 2), showSample = _slicedSS[0], setShowSample = _slicedSS[1];
+  var _React$useStateSA = React.useState(10), _slicedSA = _slicedToArray(_React$useStateSA, 2), showActive = _slicedSA[0], setShowActive = _slicedSA[1];
+  var _React$useStateSD = React.useState(10), _slicedSD = _slicedToArray(_React$useStateSD, 2), showDone = _slicedSD[0], setShowDone = _slicedSD[1];
   var _React$useStateN2 = React.useState(10), _slicedN2 = _slicedToArray(_React$useStateN2, 2), showWaiting = _slicedN2[0], setShowWaiting = _slicedN2[1];
   var _React$useStateN3 = React.useState(10), _slicedN3 = _slicedToArray(_React$useStateN3, 2), showFollowup = _slicedN3[0], setShowFollowup = _slicedN3[1];
   var _React$useStateN4 = React.useState(10), _slicedN4 = _slicedToArray(_React$useStateN4, 2), showReapproach = _slicedN4[0], setShowReapproach = _slicedN4[1];
@@ -3520,38 +3523,53 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
     accent: C.blue
   }), sowSample.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "sample dalam perjalanan"
-  }) : sowSample.map(function (a) {
+  }) : sowSample.slice(0, showSample).map(function (a) {
     return /*#__PURE__*/React.createElement(SampleCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
+  }), sowSample.length > showSample && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowSample(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", sowSample.length - showSample, " tersisa)")
+  ), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
     title: "SOW Berjalan",
     count: sowActive.length,
     accent: C.amber
   }), sowActive.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "SOW aktif"
-  }) : sowActive.map(function (a) {
+  }) : sowActive.slice(0, showActive).map(function (a) {
     return /*#__PURE__*/React.createElement(SOWCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
+  }), sowActive.length > showActive && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowActive(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", sowActive.length - showActive, " tersisa)")
+  ), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
     title: "SOW Lengkap",
     count: sowDone.length,
     accent: C.green,
     urgentLabel: needRaise > 0 ? "".concat(needRaise, " perlu raise komisi") : null
   }), sowDone.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "SOW selesai"
-  }) : sowDone.map(function (a) {
+  }) : sowDone.slice(0, showDone).map(function (a) {
     return /*#__PURE__*/React.createElement(SOWCompleteCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  })), tab === "listing" && /*#__PURE__*/React.createElement(InputTab, {
+  }), sowDone.length > showDone && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowDone(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", sowDone.length - showDone, " tersisa)")
+  )), tab === "listing" && /*#__PURE__*/React.createElement(InputTab, {
     onSubmitSingle: handleNew,
     onBulkUpload: handleBulkUpload,
     kurasiQueue: kurasiQueue,
