@@ -2901,6 +2901,8 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
           case 0:
             aff = affiliates.find(function (a) {
               return a.id === id;
+            }) || sowData.find(function (a) {
+              return a.id === id;
             });
             todayISO = new Date().toISOString().split("T")[0];
             setAffiliates(function (prev) {
