@@ -2816,16 +2816,16 @@ var INIT_SOW = [];
 // ═══════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════
-function App() {
+function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var initSow = _ref_app.initSow || []; var initTracker = _ref_app.initTracker || {tikTok:0,wa:0,cap:65};
   var _React$useState37 = React.useState("kontek"),
     _React$useState38 = _slicedToArray(_React$useState37, 2),
     tab = _React$useState38[0],
     setTab = _React$useState38[1];
-  var _React$useState39 = React.useState(INIT),
+  var _React$useState39 = React.useState(initAffiliates),
     _React$useState40 = _slicedToArray(_React$useState39, 2),
     affiliates = _React$useState40[0],
     setAffiliates = _React$useState40[1];
-  var _React$useState41 = React.useState(INIT_SOW),
+  var _React$useState41 = React.useState(initSow),
     _React$useState42 = _slicedToArray(_React$useState41, 2),
     sowData = _React$useState42[0],
     setSOWData = _React$useState42[1];
@@ -3514,8 +3514,13 @@ function App() {
 window.__mountCRM = function() {
   INIT = window.CRM_DATA.affiliates || [];
   INIT_SOW = window.CRM_DATA.sow || [];
+  console.log("Mounting with:", INIT.length, "affiliates,", INIT_SOW.length, "sow");
   var root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(React.createElement(App));
+  root.render(React.createElement(App, {
+    initAffiliates: INIT,
+    initSow: INIT_SOW,
+    initTracker: window.CRM_DATA.tracker || {tikTok:0, wa:0, cap:65}
+  }));
 };
 </script>
 
