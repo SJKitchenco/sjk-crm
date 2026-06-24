@@ -61,14 +61,15 @@ var SUPA_URL = "https://apmzwsymrfmeunhxrnvy.supabase.co";
 var SUPA_KEY = "sb_publishable_7qPAlYxvxckcDQiOwmAQrg_LP8USo_z";
 var supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-function getAuthToken() {
-  var session = supabaseClient.auth.session ? supabaseClient.auth.session() : null;
+async function getAuthToken() {
+  var result = await supabaseClient.auth.getSession();
+  var session = result.data && result.data.session;
   return (session && session.access_token) ? session.access_token : SUPA_KEY;
 }
 
 function supaFetch(path, options) {
   var url = SUPA_URL + "/rest/v1/" + path;
-  var token = getAuthToken();
+  return getAuthToken().then(function(token) {
   var opts = Object.assign({
     headers: {
       "apikey": SUPA_KEY,
@@ -81,6 +82,7 @@ function supaFetch(path, options) {
     if (!r.ok) return r.text().then(function(t) { throw new Error(r.status + ": " + t); });
     return r.json();
   });
+  }); // close getAuthToken().then
 }
 
 // ─── CRM DATA LAYER ────────────────────────────────────────────────
