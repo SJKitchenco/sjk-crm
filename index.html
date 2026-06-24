@@ -2815,6 +2815,10 @@ function App() {
     _React$useState46 = _slicedToArray(_React$useState45, 2),
     kurasiQueue = _React$useState46[0],
     setKurasiQueue = _React$useState46[1];
+  var _React$useStateN1 = React.useState(10), _slicedN1 = _slicedToArray(_React$useStateN1, 2), showNew = _slicedN1[0], setShowNew = _slicedN1[1];
+  var _React$useStateN2 = React.useState(10), _slicedN2 = _slicedToArray(_React$useStateN2, 2), showWaiting = _slicedN2[0], setShowWaiting = _slicedN2[1];
+  var _React$useStateN3 = React.useState(10), _slicedN3 = _slicedToArray(_React$useStateN3, 2), showFollowup = _slicedN3[0], setShowFollowup = _slicedN3[1];
+  var _React$useStateN4 = React.useState(10), _slicedN4 = _slicedToArray(_React$useStateN4, 2), showReapproach = _slicedN4[0], setShowReapproach = _slicedN4[1];
   var _React$useState47 = React.useState(null),
     _React$useState48 = _slicedToArray(_React$useState47, 2),
     toast = _React$useState48[0],
@@ -3268,44 +3272,59 @@ function App() {
     accent: C.black
   }), newOnes.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "affiliate baru"
-  }) : newOnes.map(function (a) {
+  }) : newOnes.slice(0, showNew).map(function (a) {
     return /*#__PURE__*/React.createElement(NewCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
+  }), newOnes.length > showNew && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowNew(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", newOnes.length - showNew, " tersisa)")
+  ), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
     title: "Menunggu Balasan",
     count: waiting.length,
     accent: C.blue,
     urgentLabel: urgentWaiting > 0 ? "".concat(urgentWaiting, " sudah H+3") : null
   }), waiting.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "yang menunggu"
-  }) : waiting.map(function (a) {
+  }) : waiting.slice(0, showWaiting).map(function (a) {
     return /*#__PURE__*/React.createElement(WaitingCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
+  }), waiting.length > showWaiting && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowWaiting(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", waiting.length - showWaiting, " tersisa)")
+  ), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
     title: "Follow Up",
     count: followups.length,
     accent: C.red
   }), followups.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "follow up"
-  }) : followups.map(function (a) {
+  }) : followups.slice(0, showFollowup).map(function (a) {
     return /*#__PURE__*/React.createElement(FollowUpCard, {
       key: a.id,
       aff: a,
       onAction: handleAction
     });
-  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
+  }), followups.length > showFollowup && /*#__PURE__*/React.createElement("div", {style:{textAlign:"center",padding:"12px 0"}},
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function() { setShowFollowup(function(n) { return n + 10; }); },
+      style: {padding:"8px 20px",borderRadius:4,background:"#EEEEEC",border:"1px solid #E5E5E5",fontSize:12,fontWeight:700,cursor:"pointer",color:"#777777",fontFamily:"inherit"}
+    }, "Tampilkan 10 lagi (", followups.length - showFollowup, " tersisa)")
+  ), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement(SectionHead, {
     title: "Re-approach Bulan Ini",
     count: reapproach.length,
     accent: C.faint
   }), reapproach.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     label: "re-approach"
-  }) : reapproach.map(function (a) {
+  }) : reapproach.slice(0, showReapproach).map(function (a) {
     return /*#__PURE__*/React.createElement(ReapproachCard, {
       key: a.id,
       aff: a,
