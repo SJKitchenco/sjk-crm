@@ -130,6 +130,27 @@ window.CRM_DATA = {
     patch.status = patch.total_vt >= 4 ? "SOW Lengkap" : "On Progress";
     return supaFetch("sow?id=eq." + sowEntry.id, { method: "PATCH", body: JSON.stringify(patch) });
   },
+
+  insertSOW: function(username, tglKirim) {
+    var today = tglKirim || new Date().toISOString().split("T")[0];
+    var h7  = new Date(today); h7.setDate(h7.getDate()+7);
+    var h12 = new Date(today); h12.setDate(h12.getDate()+12);
+    var h14 = new Date(today); h14.setDate(h14.getDate()+14);
+    var fmt = function(d) { return d.toISOString().split("T")[0]; };
+    return supaFetch("sow", {
+      method: "POST",
+      body: JSON.stringify({
+        username: username,
+        tgl_kirim: today,
+        h7: fmt(h7),
+        h12: fmt(h12),
+        h14: fmt(h14),
+        total_vt: 0,
+        status: "Barang Dikirim",
+        komisi: 6,
+      })
+    });
+  },
 };
 
 // ─── LOAD DATA ─────────────────────────────────────────────────────
@@ -2803,7 +2824,7 @@ function App() {
     _React$useState42 = _slicedToArray(_React$useState41, 2),
     sowData = _React$useState42[0],
     setSOWData = _React$useState42[1];
-  var _React$useState43 = React.useState(window.CRM ? window.CRM.dailyTracker : {
+  var _React$useState43 = React.useState(window.CRM ? window.CRM_DATA.dailyTracker : {
       tikTok: 0,
       wa: 0,
       cap: 65
@@ -2876,12 +2897,12 @@ function App() {
               return prev.map(function (a) {
                 if (a.id !== id) return a;
                 if (action === "kirim_wa") {
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Not Response",
                     tglKontak: todayISO,
                     contactConfirm: "Contacted WA"
                   });
-                  window.CRM && window.CRM.logContact("WA").then(function (r) {
+                  window.CRM_DATA && window.CRM_DATA.logContact("WA").then(function (r) {
                     return setTracker(_objectSpread(_objectSpread({}, tracker), {}, {
                       wa: (tracker.wa || 0) + 1
                     }));
@@ -2897,15 +2918,13 @@ function App() {
                   });
                 }
                 if (action === "kirim_dm") {
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Not Response",
                     tglKontak: todayISO,
                     contactConfirm: "Contacted DM TIKTOK"
                   });
-                  window.CRM && window.CRM.logContact("TikTok").then(function (r) {
-                    return setTracker(_objectSpread(_objectSpread({}, tracker), {}, {
-                      tikTok: (tracker.tikTok || 0) + 1
-                    }));
+                  window.CRM_DATA && window.CRM_DATA.logContact("TikTok").then(function () {
+                    setTracker(function(t) { return _objectSpread(_objectSpread({}, t), {}, { tikTok: (t.tikTok || 0) + 1 }); });
                   });
                   return _objectSpread(_objectSpread({}, a), {}, {
                     tglKontak: todayISO,
@@ -2927,7 +2946,7 @@ function App() {
                 });
                 if (action === "copy_username") return a;
                 if (action === "on_discuss") {
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "On Discuss"
                   });
                   return _objectSpread(_objectSpread({}, a), {}, {
@@ -2937,7 +2956,7 @@ function App() {
                 }
                 if (action === "not_response") {
                   var reDate = addDays(todayISO, 30);
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Not Response",
                     reapproachDate: reDate
                   });
@@ -2947,9 +2966,10 @@ function App() {
                   });
                 }
                 if (action === "approved") {
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Approved"
                   });
+                  window.CRM_DATA && window.CRM_DATA.insertSOW(a.username, todayISO);
                   return _objectSpread(_objectSpread({}, a), {}, {
                     status: "Approved",
                     section: "sow_sample",
@@ -2962,7 +2982,7 @@ function App() {
                 }
                 if (action === "reject") {
                   var _reDate = addDays(todayISO, 30);
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "Reject",
                     reapproachDate: _reDate
                   });
@@ -2992,7 +3012,7 @@ function App() {
                   section: "sow_complete"
                 });
                 if (action === "raise_komisi") {
-                  window.CRM && window.CRM.updateStatus(a.rowIndex, {
+                  window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     remarks: "Komisi 9%"
                   });
                   return _objectSpread(_objectSpread({}, a), {}, {
@@ -3002,6 +3022,39 @@ function App() {
                 return a;
               });
             });
+            // Update sowData when approved
+            if (action === "approved" && aff) {
+              var today14 = addDays(todayISO, 14);
+              var newSOW = {
+                id: Date.now(),
+                rowIndex: Date.now(),
+                username: aff.username,
+                tglKirim: todayISO,
+                h14: today14,
+                vts: [],
+                totalVT: 0,
+                status: "Barang Dikirim",
+                section: "sow_sample",
+                sowStart: null,
+                komisi: 6,
+                gmv: "",
+                notes: "",
+                wa: aff.wa,
+                followers: aff.followers,
+                niche: aff.niche,
+              };
+              setSowData(function(prev) { return [].concat(prev, [newSOW]); });
+            }
+            if (action === "approved" && aff) {
+              var today14 = addDays(todayISO, 14);
+              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers, niche: aff.niche };
+              setSowData(function(prev) { return prev.concat([newSOW]); });
+            }
+                        if (action === "approved" && aff) {
+              var today14 = addDays(todayISO, 14);
+              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
+              setSowData(function(prev) { return prev.concat([newSOW]); });
+            }
             msgs = {
               kirim_wa: "WA terkirim",
               kirim_dm: "TikTok DM terkirim",
