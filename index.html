@@ -179,6 +179,7 @@ window.CRM_DATA = {
         h12: fmt(h12),
         h14: fmt(h14),
         total_vt: 0,
+        vt_target: 4,
         status: "Barang Dikirim",
         komisi: 6,
       })
@@ -278,6 +279,7 @@ function mapSOW(s) {
     h7: s.h7, h12: s.h12, h14: s.h14,
     vts: vts,
     totalVT: s.total_vt || 0,
+    vtTarget: s.vt_target || 4,
     status: s.status || "",
     gmv: s.gmv || "",
     komisi: s.komisi || 6,
@@ -608,6 +610,88 @@ function StatusBadge(_ref3) {
     bg: C.surface
   };
   return /*#__PURE__*/React.createElement(Badge, s);
+}
+function EditAffiliateForm(_ref_eaf) {
+  var aff = _ref_eaf.aff,
+    onAction = _ref_eaf.onAction;
+  var _React$useStateEO = React.useState(false),
+    _slicedEO = _slicedToArray(_React$useStateEO, 2),
+    open = _slicedEO[0],
+    setOpen = _slicedEO[1];
+  var _React$useStateEF = React.useState(null),
+    _slicedEF = _slicedToArray(_React$useStateEF, 2),
+    form = _slicedEF[0],
+    setForm = _slicedEF[1];
+  var inp = {
+    width: "100%",
+    padding: "8px 10px",
+    borderRadius: 4,
+    border: "1px solid ".concat(C.rule),
+    background: C.white,
+    fontSize: 12,
+    color: C.ink,
+    outline: "none",
+    fontFamily: "inherit"
+  };
+  var lbl = {
+    fontSize: 9,
+    color: C.muted,
+    marginBottom: 3,
+    display: "block",
+    letterSpacing: "0.05em",
+    fontWeight: 700,
+    textTransform: "uppercase"
+  };
+  var startEdit = function () {
+    setForm({
+      wa: aff.wa || "",
+      gmv: aff.gmv || "",
+      followers: aff.followers || "",
+      niche: aff.niche || "",
+      linkTiktok: aff.linkTiktok || ""
+    });
+    setOpen(true);
+  };
+  var set = function (k, v) {
+    return setForm(function (f) { return Object.assign({}, f, _defineProperty({}, k, v)); });
+  };
+  if (!open) {
+    return /*#__PURE__*/React.createElement("button", {
+      onClick: function (e) { e.stopPropagation(); startEdit(); },
+      style: { fontSize: 11, color: C.blue, background: "none", border: "none", cursor: "pointer", fontWeight: 700, padding: 0, fontFamily: "inherit" }
+    }, "✏️ Edit Data Affiliate");
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: { background: C.surface, border: "1px solid ".concat(C.rule), borderRadius: 6, padding: 10, display: "grid", gap: 8 }
+  },
+  /*#__PURE__*/React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("label", { style: lbl }, "No WA"),
+      /*#__PURE__*/React.createElement("input", { style: inp, value: form.wa, onChange: function (e) { set("wa", e.target.value); }, placeholder: "08xxx" })),
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("label", { style: lbl }, "GMV"),
+      /*#__PURE__*/React.createElement("input", { style: inp, value: form.gmv, onChange: function (e) { set("gmv", e.target.value); }, placeholder: "kosongkan jika tidak ada" }))),
+  /*#__PURE__*/React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("label", { style: lbl }, "Followers"),
+      /*#__PURE__*/React.createElement("input", { style: inp, value: form.followers, onChange: function (e) { set("followers", e.target.value); }, placeholder: "5,3rb" })),
+    /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement("label", { style: lbl }, "Niche"),
+      /*#__PURE__*/React.createElement("select", { style: inp, value: form.niche, onChange: function (e) { set("niche", e.target.value); } },
+        /*#__PURE__*/React.createElement("option", { value: "" }, "Pilih niche..."),
+        NICHE_OPTIONS.map(function (n) { return /*#__PURE__*/React.createElement("option", { key: n, value: n }, n); })))),
+  /*#__PURE__*/React.createElement("div", null,
+    /*#__PURE__*/React.createElement("label", { style: lbl }, "Link TikTok"),
+    /*#__PURE__*/React.createElement("input", { style: inp, value: form.linkTiktok, onChange: function (e) { set("linkTiktok", e.target.value); }, placeholder: "tiktok.com/@..." })),
+  /*#__PURE__*/React.createElement("div", { style: { display: "flex", gap: 8 } },
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function (e) { e.stopPropagation(); onAction(aff.id, "edit_data", form); setOpen(false); },
+      style: { flex: 1, padding: "9px", borderRadius: 4, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", background: C.black, color: "#fff", border: "none" }
+    }, "Simpan Perubahan"),
+    /*#__PURE__*/React.createElement("button", {
+      onClick: function (e) { e.stopPropagation(); setOpen(false); },
+      style: { padding: "9px 14px", borderRadius: 4, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", background: C.white, color: C.muted, border: "1px solid ".concat(C.rule) }
+    }, "Batal")));
 }
 function DayBadge(_ref4) {
   var days = _ref4.days;
@@ -1132,7 +1216,7 @@ function NewCard(_ref1) {
   }, "WA Invalid \u2014 lanjut TikTok DM"), /*#__PURE__*/React.createElement(TemplateDrawer, {
     phase: "outreach_new",
     aff: aff
-  }))));
+  }), /*#__PURE__*/React.createElement(EditAffiliateForm, { aff: aff, onAction: onAction }))));
 }
 function WaitingCard(_ref10) {
   var aff = _ref10.aff,
@@ -1253,7 +1337,7 @@ function WaitingCard(_ref10) {
       fontSize: 11,
       color: C.faint
     }
-  }, aff.followers, " \xB7 GMV ", aff.gmv || "—"))));
+  }, aff.followers, " \xB7 GMV ", aff.gmv || "—"), /*#__PURE__*/React.createElement(EditAffiliateForm, { aff: aff, onAction: onAction }))));
 }
 function FollowUpCard(_ref11) {
   var aff = _ref11.aff,
@@ -1360,7 +1444,7 @@ function FollowUpCard(_ref11) {
   }, "Reject"), /*#__PURE__*/React.createElement(TemplateDrawer, {
     phase: "outreach_discuss",
     aff: aff
-  }))));
+  }), /*#__PURE__*/React.createElement(EditAffiliateForm, { aff: aff, onAction: onAction }))));
 }
 function ReapproachCard(_ref12) {
   var aff = _ref12.aff,
@@ -1445,10 +1529,11 @@ function ReapproachCard(_ref12) {
       border: "none",
       textAlign: "left"
     }
-  }, "Kontak Lagi"))));
+  }, "Kontak Lagi"), /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, /*#__PURE__*/React.createElement(EditAffiliateForm, { aff: aff, onAction: onAction })))));
 }
 function ApprovedCard(_ref_appc) {
-  var aff = _ref_appc.aff;
+  var aff = _ref_appc.aff,
+    onAction = _ref_appc.onAction;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.white,
@@ -1466,7 +1551,7 @@ function ApprovedCard(_ref_appc) {
     status: aff.status
   })), /*#__PURE__*/React.createElement("div", {
     style: { fontSize: 11, color: C.muted, marginTop: 3 }
-  }, "Lanjut di Deal Affiliate — lihat progres SOW"));
+  }, "Lanjut di Deal Affiliate — lihat progres SOW"), /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, /*#__PURE__*/React.createElement(EditAffiliateForm, { aff: aff, onAction: onAction })));
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1594,8 +1679,17 @@ function SOWCard(_ref14) {
     _React$useState16 = _slicedToArray(_React$useState15, 2),
     newLink = _React$useState16[0],
     setNewLink = _React$useState16[1];
+  var _React$useStateTE = React.useState(false),
+    _slicedTE = _slicedToArray(_React$useStateTE, 2),
+    editingTarget = _slicedTE[0],
+    setEditingTarget = _slicedTE[1];
+  var _React$useStateTV = React.useState(""),
+    _slicedTV = _slicedToArray(_React$useStateTV, 2),
+    targetInput = _slicedTV[0],
+    setTargetInput = _slicedTV[1];
   var vts = aff.vts || [];
   var total = vts.length;
+  var vtTarget = aff.vtTarget || 4;
   var daysLeft = daysUntil(aff.h14);
   var isOverdue = daysLeft !== null && daysLeft < 0;
   var isUrgent = daysLeft !== null && daysLeft <= 2 && !isOverdue;
@@ -1653,7 +1747,8 @@ function SOWCard(_ref14) {
     bg: C.surface,
     border: C.rule
   })), /*#__PURE__*/React.createElement(VTProgress, {
-    total: total
+    total: total,
+    max: vtTarget
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
@@ -1676,7 +1771,33 @@ function SOWCard(_ref14) {
     style: {
       paddingTop: 12
     }
-  }, vts.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }
+  },
+  /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: C.muted } }, "Target VT: ", /*#__PURE__*/React.createElement("strong", { style: { color: C.ink } }, vtTarget)),
+  !editingTarget && /*#__PURE__*/React.createElement("button", {
+    onClick: function () { setTargetInput(String(vtTarget)); setEditingTarget(true); },
+    style: { fontSize: 11, color: C.blue, background: "none", border: "none", cursor: "pointer", fontWeight: 700, padding: 0, fontFamily: "inherit" }
+  }, "Edit Target — nego VT"),
+  editingTarget && /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 1,
+    value: targetInput,
+    onChange: function (e) { setTargetInput(e.target.value); },
+    style: { width: 50, padding: "4px 6px", borderRadius: 4, border: "1px solid ".concat(C.rule), fontSize: 12, fontFamily: "inherit", outline: "none" }
+  }),
+  editingTarget && /*#__PURE__*/React.createElement("button", {
+    onClick: function () {
+      if (targetInput.trim()) onAction(aff.username, "set_vt_target", targetInput.trim());
+      setEditingTarget(false);
+    },
+    style: { fontSize: 11, color: C.green, background: "none", border: "none", cursor: "pointer", fontWeight: 700, padding: 0, fontFamily: "inherit" }
+  }, "Simpan"),
+  editingTarget && /*#__PURE__*/React.createElement("button", {
+    onClick: function () { setEditingTarget(false); },
+    style: { fontSize: 11, color: C.muted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }
+  }, "Batal")
+  ), vts.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12
     }
@@ -1725,7 +1846,7 @@ function SOWCard(_ref14) {
         whiteSpace: "nowrap"
       }
     }, vt.tgl));
-  })), total < 4 && /*#__PURE__*/React.createElement("div", {
+  })), total < vtTarget && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12
     }
@@ -1777,7 +1898,7 @@ function SOWCard(_ref14) {
       fontFamily: "inherit",
       whiteSpace: "nowrap"
     }
-  }, "Simpan"))), total >= 4 && /*#__PURE__*/React.createElement("button", {
+  }, "Simpan"))), total >= vtTarget && /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return onAction(aff.username, "sow_complete");
     },
@@ -1865,7 +1986,8 @@ function SOWCompleteCard(_ref15) {
     bg: C.greenBg,
     border: C.greenBorder
   })), /*#__PURE__*/React.createElement(VTProgress, {
-    total: 4
+    total: aff.totalVT || (aff.vts || []).length,
+    max: aff.vtTarget || 4
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
@@ -3203,7 +3325,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
       return _regenerator().w(function (_context2) {
         while (1) switch (_context2.n) {
           case 0:
-            var _sowActions = ["sow_start","sow_complete","raise_komisi","add_vt"];
+            var _sowActions = ["sow_start","sow_complete","raise_komisi","add_vt","set_vt_target"];
             if (_sowActions.indexOf(action) !== -1) {
               aff = sowData.find(function (a) { return a.username === id || a.id === id; });
             } else {
@@ -3265,6 +3387,20 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
                   notes: "WA invalid — lanjut TikTok DM"
                 });
                 if (action === "copy_username") return a;
+                if (action === "edit_data") {
+                  var editPatch = payload || {};
+                  var supaPatch = {};
+                  if (editPatch.wa !== undefined) supaPatch.wa = editPatch.wa || null;
+                  if (editPatch.gmv !== undefined) supaPatch.gmv = editPatch.gmv || null;
+                  if (editPatch.followers !== undefined) supaPatch.followers = editPatch.followers || null;
+                  if (editPatch.niche !== undefined) supaPatch.niche = editPatch.niche || null;
+                  if (editPatch.linkTiktok !== undefined) supaPatch.profile_link = editPatch.linkTiktok || null;
+                  window.CRM_DATA && supaFetch("affiliates?id=eq." + a.rowIndex, {
+                    method: "PATCH",
+                    body: JSON.stringify(supaPatch)
+                  }).catch(reportSaveError);
+                  return _objectSpread(_objectSpread({}, a), editPatch);
+                }
                 if (action === "on_discuss") {
                   window.CRM_DATA && window.CRM_DATA.updateStatus(a.rowIndex, {
                     status: "On Discuss"
@@ -3357,7 +3493,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
             // SOW state updates via window.__setSOWData
             if (action === "approved" && aff) {
               var today14 = addDays(todayISO, 14);
-              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
+              var newSOW = { id: Date.now(), rowIndex: Date.now(), username: aff.username, namaWA: aff.wa || "", niche: aff.niche || "", tglKirim: todayISO, h14: today14, vts: [], totalVT: 0, vtTarget: 4, status: "Barang Dikirim", section: "sow_sample", sowStart: null, komisi: 6, gmv: "", notes: "", wa: aff.wa, followers: aff.followers };
               if (window.__setSOWData) window.__setSOWData(function(prev) {
                 var exists = prev.some(function(s) { return s.username === aff.username; });
                 if (exists) return prev;
@@ -3391,11 +3527,29 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               });
               window.CRM_DATA && supaFetch("sow?username=eq." + encodeURIComponent(aff.username), { method: "PATCH", body: JSON.stringify({ komisi: 9 }) }).catch(reportSaveError);
             }
+            if (action === "set_vt_target" && aff) {
+              var newTarget = parseInt(payload, 10);
+              if (newTarget && newTarget > 0) {
+                var completeNow = (aff.vts || []).length >= newTarget;
+                window.CRM_DATA && supaFetch("sow?username=eq." + encodeURIComponent(aff.username), { method: "PATCH", body: JSON.stringify({ vt_target: newTarget, status: completeNow ? "SOW Lengkap" : aff.status }) }).catch(reportSaveError);
+                if (window.__setSOWData) window.__setSOWData(function(prev) {
+                  return prev.map(function(s) {
+                    if (s.username !== aff.username) return s;
+                    return Object.assign({}, s, {
+                      vtTarget: newTarget,
+                      status: completeNow ? "SOW Lengkap" : s.status,
+                      section: completeNow ? "sow_complete" : s.section
+                    });
+                  });
+                });
+              }
+            }
             if (action === "add_vt" && aff) {
+              var vtTarget = aff.vtTarget || 4;
               var vtIndex = (aff.vts || []).length;
-              if (vtIndex < 4) {
+              if (vtIndex < vtTarget) {
                 var newTotal = vtIndex + 1;
-                var newStatus = newTotal >= 4 ? "SOW Lengkap" : "On Progress";
+                var newStatus = newTotal >= vtTarget ? "SOW Lengkap" : "On Progress";
                 var vtPatch = {};
                 vtPatch["vt" + newTotal + "_link"] = payload;
                 vtPatch["tgl_vt" + newTotal] = todayISO;
@@ -3410,7 +3564,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
                       vts: newVts,
                       totalVT: newVts.length,
                       status: newStatus,
-                      section: newTotal >= 4 ? "sow_complete" : "sow_active"
+                      section: newTotal >= vtTarget ? "sow_complete" : "sow_active"
                     });
                   });
                 });
@@ -3428,7 +3582,9 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
               sow_start: "SOW dimulai",
               add_vt: "VT tersimpan",
               sow_complete: "SOW Lengkap",
-              raise_komisi: "Komisi → 9%"
+              raise_komisi: "Komisi → 9%",
+              set_vt_target: "Target VT diubah",
+              edit_data: "Data tersimpan"
             };
             showToast(msgs[action] || action);
           case 1:
@@ -3873,7 +4029,8 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
   }) : approvedList.map(function (a) {
     return /*#__PURE__*/React.createElement(ApprovedCard, {
       key: a.id,
-      aff: a
+      aff: a,
+      onAction: handleAction
     });
   })), tab === "deal" && /*#__PURE__*/React.createElement("div", null,
   /*#__PURE__*/React.createElement("div", {
