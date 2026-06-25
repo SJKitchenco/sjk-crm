@@ -178,8 +178,6 @@ window.CRM_DATA = {
         h12: fmt(h12),
         h14: fmt(h14),
         total_vt: 0,
-        vt_target: 4,
-        live_count: 0,
         status: "Barang Dikirim",
         komisi: 6,
       })
@@ -2861,143 +2859,6 @@ function InputTab(_ref25) {
   }))));
 }
 
-
-// ═══════════════════════════════════════════════════════════════════
-// REKAP TAB
-// ═══════════════════════════════════════════════════════════════════
-
-function RekapTab() {
-  var today = new Date();
-  var firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
-  var todayStr = today.toISOString().split("T")[0];
-
-  var _React$useStateR1 = React.useState(firstDay), _slicedR1 = _slicedToArray(_React$useStateR1, 2), dateFrom = _slicedR1[0], setDateFrom = _slicedR1[1];
-  var _React$useStateR2 = React.useState(todayStr), _slicedR2 = _slicedToArray(_React$useStateR2, 2), dateTo = _slicedR2[0], setDateTo = _slicedR2[1];
-  var _React$useStateR3 = React.useState(null), _slicedR3 = _slicedToArray(_React$useStateR3, 2), data = _slicedR3[0], setData = _slicedR3[1];
-  var _React$useStateR4 = React.useState(false), _slicedR4 = _slicedToArray(_React$useStateR4, 2), loading = _slicedR4[0], setLoading = _slicedR4[1];
-
-  function loadRekap() {
-    setLoading(true);
-    setData(null);
-
-    Promise.all([
-      // Outreach stats
-      supaFetch("affiliates?select=status,contact_confirm,tgl_kontak&tgl_kontak=gte." + dateFrom + "&tgl_kontak=lte." + dateTo + "&kurasi=eq.Yes"),
-      // SOW stats
-      supaFetch("sow?select=status,total_vt,vt_target,live_count,tgl_deal,tgl_kirim&tgl_deal=gte." + dateFrom + "&tgl_deal=lte." + dateTo),
-      // Ghost affiliates - sample sent but no VT after 14 days
-      supaFetch("sow?select=username,tgl_kirim,total_vt,status&status=in.(Barang Dikirim,On Progress)&tgl_kirim=lte." + addDays(dateFrom, -14)),
-    ]).then(function(results) {
-      var outreach = results[0] || [];
-      var sow = results[1] || [];
-      var ghosts = (results[2] || []).filter(function(s) { return (s.total_vt || 0) === 0; });
-
-      // Outreach breakdown
-      var byWA = outreach.filter(function(a) { return (a.contact_confirm || "").toLowerCase().includes("wa"); }).length;
-      var byDM = outreach.filter(function(a) { return (a.contact_confirm || "").toLowerCase().includes("dm"); }).length;
-      var notResponse = outreach.filter(function(a) { return a.status === "Not Response"; }).length;
-      var onDiscuss = outreach.filter(function(a) { return a.status === "On Discuss"; }).length;
-      var approved = outreach.filter(function(a) { return a.status === "Approved"; }).length;
-      var reject = outreach.filter(function(a) { return a.status === "Reject"; }).length;
-      var responseRate = outreach.length > 0 ? Math.round(((onDiscuss + approved) / outreach.length) * 100) : 0;
-
-      // SOW breakdown
-      var sowComplete = sow.filter(function(s) { return s.status === "SOW Lengkap"; }).length;
-      var sowProgress = sow.filter(function(s) { return s.status === "On Progress"; }).length;
-      var sowSample = sow.filter(function(s) { return s.status === "Barang Dikirim"; }).length;
-      var totalVT = sow.reduce(function(sum, s) { return sum + (s.total_vt || 0); }, 0);
-      var targetVT = sow.reduce(function(sum, s) { return sum + (s.vt_target || 4); }, 0);
-      var totalLive = sow.reduce(function(sum, s) { return sum + (s.live_count || 0); }, 0);
-
-      setData({
-        outreach: { total: outreach.length, byWA, byDM, notResponse, onDiscuss, approved, reject, responseRate },
-        sow: { total: sow.length, sowComplete, sowProgress, sowSample, totalVT, targetVT, totalLive, ghosts },
-      });
-      setLoading(false);
-    }).catch(function(err) {
-      console.error(err);
-      setLoading(false);
-    });
-  }
-
-  React.useEffect(function() { loadRekap(); }, []);
-
-  var inp = { padding:"9px 12px", borderRadius:4, border:"1px solid " + C.rule, fontSize:13, fontFamily:"inherit", outline:"none", background:C.white };
-  var MetricBox = function(_ref) {
-    var label = _ref.label, value = _ref.value, sub = _ref.sub, color = _ref.color, bg = _ref.bg;
-    return /*#__PURE__*/React.createElement("div", { style:{ background: bg || C.white, border:"1px solid " + C.rule, borderRadius:6, padding:"12px 14px" } },
-      /*#__PURE__*/React.createElement("div", { style:{ fontSize:9, color:C.faint, textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:2 } }, label),
-      /*#__PURE__*/React.createElement("div", { style:{ fontSize:24, fontWeight:800, color: color || C.black, lineHeight:1 } }, value),
-      sub && /*#__PURE__*/React.createElement("div", { style:{ fontSize:10, color:C.muted, marginTop:3 } }, sub)
-    );
-  };
-
-  return /*#__PURE__*/React.createElement("div", null,
-    // Header
-    /*#__PURE__*/React.createElement("div", { style:{ fontWeight:800, fontSize:16, color:C.black, marginBottom:16 } }, "Rekap Performa"),
-
-    // Date picker
-    /*#__PURE__*/React.createElement("div", { style:{ display:"flex", gap:8, alignItems:"center", marginBottom:20, flexWrap:"wrap" } },
-      /*#__PURE__*/React.createElement("input", { type:"date", value:dateFrom, onChange:function(e){setDateFrom(e.target.value);}, style:inp }),
-      /*#__PURE__*/React.createElement("span", { style:{ color:C.muted, fontSize:13 } }, "s/d"),
-      /*#__PURE__*/React.createElement("input", { type:"date", value:dateTo, onChange:function(e){setDateTo(e.target.value);}, style:inp }),
-      /*#__PURE__*/React.createElement("button", {
-        onClick: loadRekap,
-        style:{ padding:"9px 18px", borderRadius:4, background:C.black, color:"#fff", border:"none", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }
-      }, loading ? "Loading..." : "Tampilkan")
-    ),
-
-    loading && /*#__PURE__*/React.createElement("div", { style:{ textAlign:"center", padding:"40px 0", color:C.faint, fontSize:13 } }, "Mengambil data..."),
-
-    data && /*#__PURE__*/React.createElement("div", null,
-
-      // OUTREACH SECTION
-      /*#__PURE__*/React.createElement("div", { style:{ marginBottom:24, paddingBottom:8, borderBottom:"2px solid " + C.black } },
-        /*#__PURE__*/React.createElement("div", { style:{ fontWeight:700, fontSize:11, letterSpacing:"0.08em", color:C.black, textTransform:"uppercase", marginBottom:12 } }, "Outreach")
-      ),
-      /*#__PURE__*/React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:12 } },
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Total Dikontak", value:data.outreach.total }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Via WhatsApp", value:data.outreach.byWA }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Via TikTok DM", value:data.outreach.byDM })
-      ),
-      /*#__PURE__*/React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:24 } },
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Response Rate", value:data.outreach.responseRate + "%", color:data.outreach.responseRate >= 20 ? C.green : C.amber }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"On Discuss", value:data.outreach.onDiscuss, color:C.blue }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Approved", value:data.outreach.approved, color:C.green }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Not Response", value:data.outreach.notResponse, color:C.amber })
-      ),
-
-      // SOW SECTION
-      /*#__PURE__*/React.createElement("div", { style:{ marginBottom:12, paddingBottom:8, borderBottom:"2px solid " + C.amber } },
-        /*#__PURE__*/React.createElement("div", { style:{ fontWeight:700, fontSize:11, letterSpacing:"0.08em", color:C.amber, textTransform:"uppercase" } }, "Deal & SOW")
-      ),
-      /*#__PURE__*/React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:12 } },
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Total Deal", value:data.sow.total }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"SOW Lengkap", value:data.sow.sowComplete, color:C.green }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Masih Berjalan", value:data.sow.sowProgress, color:C.amber })
-      ),
-      /*#__PURE__*/React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:12 } },
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Total VT Delivered", value:data.sow.totalVT, sub:"target " + data.sow.targetVT + " VT", color:C.green }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Total Live Session", value:data.sow.totalLive }),
-        /*#__PURE__*/React.createElement(MetricBox, { label:"Dapat Sample, Hilang", value:data.sow.ghosts.length, color:data.sow.ghosts.length > 0 ? C.red : C.green, bg:data.sow.ghosts.length > 0 ? C.redBg : C.greenBg })
-      ),
-
-      // GHOST LIST
-      data.sow.ghosts.length > 0 && /*#__PURE__*/React.createElement("div", { style:{ marginTop:16 } },
-        /*#__PURE__*/React.createElement("div", { style:{ fontSize:11, fontWeight:700, color:C.red, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:10 } },
-          "Affiliator Hilang Setelah Dapat Sample (" + data.sow.ghosts.length + ")"
-        ),
-        data.sow.ghosts.map(function(g) {
-          return /*#__PURE__*/React.createElement("div", { key:g.username, style:{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 12px", background:C.white, border:"1px solid " + C.redBorder, borderRadius:6, marginBottom:6 } },
-            /*#__PURE__*/React.createElement("span", { style:{ fontWeight:600, fontSize:13, color:C.black } }, "@" + g.username),
-            /*#__PURE__*/React.createElement("span", { style:{ fontSize:11, color:C.red } }, "Kirim: " + (g.tgl_kirim || "-") + " · 0 VT")
-          );
-        })
-      )
-    )
-  );
-}
-
 // Data loaded from Sheets via CRM API
 var INIT = [];
 var INIT_SOW = [];
@@ -3005,6 +2866,139 @@ var INIT_SOW = [];
 // ═══════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════
+// ─── REKAP TAB ─────────────────────────────────────────────────────
+function StatCard(_ref_sc) {
+  var label = _ref_sc.label, val = _ref_sc.val, color = _ref_sc.color, sub = _ref_sc.sub;
+  return /*#__PURE__*/React.createElement("div", {
+    style: { background: C.white, border: "1px solid ".concat(C.rule), borderRadius: 6, padding: "10px 10px 8px" }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 9, color: C.faint, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 22, fontWeight: 800, color: color || C.black, lineHeight: 1 }
+  }, val), sub && /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 10, color: C.muted, marginTop: 3 }
+  }, sub));
+}
+
+function RekapTab() {
+  var todayISO = new Date().toISOString().split("T")[0];
+  var defaultFrom = (function () { var d = new Date(); d.setDate(1); return d.toISOString().split("T")[0]; })();
+
+  var fromState = React.useState(defaultFrom);
+  var dateFrom = fromState[0], setDateFrom = fromState[1];
+  var toState = React.useState(todayISO);
+  var dateTo = toState[0], setDateTo = toState[1];
+  var loadingState = React.useState(true);
+  var loading = loadingState[0], setLoading = loadingState[1];
+  var errorState = React.useState(null);
+  var error = errorState[0], setError = errorState[1];
+  var affState = React.useState([]);
+  var rekapAff = affState[0], setRekapAff = affState[1];
+  var sowState = React.useState([]);
+  var rekapSow = sowState[0], setRekapSow = sowState[1];
+  var ghostState = React.useState([]);
+  var ghostList = ghostState[0], setGhostList = ghostState[1];
+
+  React.useEffect(function () {
+    setLoading(true);
+    setError(null);
+    var ghostThreshold = addDays(todayISO, -14);
+    Promise.all([
+      supaFetch("affiliates?select=status,contact_confirm,tgl_kontak,kurasi&kurasi=eq.Yes&tgl_kontak=gte." + dateFrom + "&tgl_kontak=lte." + dateTo),
+      supaFetch("sow?select=username,status,total_vt,vt_target,live_count,tgl_deal,tgl_kirim&tgl_deal=gte." + dateFrom + "&tgl_deal=lte." + dateTo),
+      supaFetch("sow?select=username,total_vt,tgl_kirim&total_vt=eq.0&tgl_kirim=gte." + dateFrom + "&tgl_kirim=lte." + ghostThreshold),
+    ]).then(function (results) {
+      setRekapAff(results[0] || []);
+      setRekapSow(results[1] || []);
+      setGhostList(results[2] || []);
+      setLoading(false);
+    }).catch(function (err) {
+      setError(err.message);
+      setLoading(false);
+    });
+  }, [dateFrom, dateTo]);
+
+  var totalDikontak = rekapAff.length;
+  var viaWA = rekapAff.filter(function (a) { return (a.contact_confirm || "").toLowerCase().includes("wa"); }).length;
+  var viaDM = rekapAff.filter(function (a) { return (a.contact_confirm || "").toLowerCase().includes("dm"); }).length;
+  var onDiscuss = rekapAff.filter(function (a) { return a.status === "On Discuss"; }).length;
+  var approved = rekapAff.filter(function (a) { return a.status === "Approved"; }).length;
+  var notResponse = rekapAff.filter(function (a) { return a.status === "Not Response"; }).length;
+  var reject = rekapAff.filter(function (a) { return a.status === "Reject"; }).length;
+  var responded = totalDikontak - notResponse;
+  var responseRate = totalDikontak > 0 ? Math.round((responded / totalDikontak) * 100) : 0;
+
+  var totalDeal = rekapSow.length;
+  var sowLengkap = rekapSow.filter(function (s) { return s.status === "SOW Lengkap"; }).length;
+  var berjalan = rekapSow.filter(function (s) { return s.status === "On Progress"; }).length;
+  var totalVTDelivered = rekapSow.reduce(function (sum, s) { return sum + (s.total_vt || 0); }, 0);
+  var totalVTTarget = rekapSow.reduce(function (sum, s) { return sum + (s.vt_target || 0); }, 0);
+  var totalLive = rekapSow.reduce(function (sum, s) { return sum + (s.live_count || 0); }, 0);
+
+  return /*#__PURE__*/React.createElement("div", null,
+    /*#__PURE__*/React.createElement("div", {
+      style: { display: "flex", gap: 8, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }
+    },
+    /*#__PURE__*/React.createElement("div", { style: { flex: 1, minWidth: 120 } },
+      /*#__PURE__*/React.createElement("div", { style: { fontSize: 9, color: C.faint, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 } }, "Dari"),
+      /*#__PURE__*/React.createElement("input", {
+        type: "date",
+        value: dateFrom,
+        onChange: function (e) { setDateFrom(e.target.value); },
+        style: { width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid ".concat(C.rule), fontSize: 13, fontFamily: "inherit", outline: "none", background: "#fff" }
+      })),
+    /*#__PURE__*/React.createElement("div", { style: { flex: 1, minWidth: 120 } },
+      /*#__PURE__*/React.createElement("div", { style: { fontSize: 9, color: C.faint, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 } }, "Sampai"),
+      /*#__PURE__*/React.createElement("input", {
+        type: "date",
+        value: dateTo,
+        onChange: function (e) { setDateTo(e.target.value); },
+        style: { width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid ".concat(C.rule), fontSize: 13, fontFamily: "inherit", outline: "none", background: "#fff" }
+      }))),
+    loading ? /*#__PURE__*/React.createElement("div", {
+      style: { textAlign: "center", padding: "40px 0", color: C.muted, fontSize: 13 }
+    }, "Memuat rekap...") : error ? /*#__PURE__*/React.createElement("div", {
+      style: { textAlign: "center", padding: "40px 0", color: C.red, fontSize: 13 }
+    }, "Error: " + error) : /*#__PURE__*/React.createElement("div", null,
+      /*#__PURE__*/React.createElement(SectionHead, { title: "Outreach", accent: C.black, count: totalDikontak }),
+      /*#__PURE__*/React.createElement("div", {
+        style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, marginBottom: 20 }
+      },
+      /*#__PURE__*/React.createElement(StatCard, { label: "Total Dikontak", val: totalDikontak, color: C.black }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Via WA", val: viaWA, color: C.green }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Via DM", val: viaDM, color: C.blue }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Response Rate", val: responseRate + "%", color: C.black, sub: responded + " dari " + totalDikontak + " merespons" }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "On Discuss", val: onDiscuss, color: C.amber }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Approved", val: approved, color: C.green }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Not Response", val: notResponse, color: C.muted }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Reject", val: reject, color: C.red })),
+
+      /*#__PURE__*/React.createElement(SectionHead, { title: "SOW", accent: C.blue, count: totalDeal }),
+      /*#__PURE__*/React.createElement("div", {
+        style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, marginBottom: 20 }
+      },
+      /*#__PURE__*/React.createElement(StatCard, { label: "Total Deal", val: totalDeal, color: C.black }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "SOW Lengkap", val: sowLengkap, color: C.green }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Berjalan", val: berjalan, color: C.amber }),
+      /*#__PURE__*/React.createElement(StatCard, {
+        label: "VT Delivered",
+        val: totalVTDelivered + "/" + totalVTTarget,
+        color: C.blue,
+        sub: totalVTTarget > 0 ? Math.round((totalVTDelivered / totalVTTarget) * 100) + "% dari target" : null
+      }),
+      /*#__PURE__*/React.createElement(StatCard, { label: "Total Live Session", val: totalLive, color: C.blue })),
+
+      /*#__PURE__*/React.createElement(SectionHead, { title: "Ghost List", accent: C.red, count: ghostList.length, urgentLabel: "sample terkirim, 0 VT setelah 14 hari" }),
+      ghostList.length === 0 ? /*#__PURE__*/React.createElement(Empty, { label: "ghost dalam rentang ini" }) : ghostList.map(function (g) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: g.username,
+          style: { background: C.redBg, border: "1px solid ".concat(C.redBorder), borderRadius: 6, padding: "10px 12px", marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }
+        },
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: C.ink } }, "@" + g.username),
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: C.red } }, "Kirim " + g.tgl_kirim + " · " + daysSince(g.tgl_kirim) + " hari lalu"));
+      })));
+}
+
 function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var initSow = _ref_app.initSow || []; var initTracker = _ref_app.initTracker || {tikTok:0,wa:0,cap:65};
   var _React$useState37 = React.useState("kontek"),
     _React$useState38 = _slicedToArray(_React$useState37, 2),
@@ -3354,7 +3348,6 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
   }, {
     id: "rekap",
     label: "Rekap",
-    badge: 0
   }];
   var tabStyle = function tabStyle(t) {
     return {
@@ -3739,7 +3732,7 @@ function App(_ref_app) { var initAffiliates = _ref_app.initAffiliates || []; var
     onBulkUpload: handleBulkUpload,
     kurasiQueue: kurasiQueue,
     onKurasi: handleKurasi
-  })));
+  }), tab === "rekap" && /*#__PURE__*/React.createElement(RekapTab)));
 }
 
 
