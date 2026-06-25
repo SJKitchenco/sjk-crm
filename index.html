@@ -2768,6 +2768,8 @@ function KurasiCard(_ref21) {
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return onKurasi(aff.id, _objectSpread(_objectSpread({}, form), {}, {
+        username: aff.username,
+        linkTiktok: aff.linkTiktok,
         kurasi: "Yes"
       }));
     },
@@ -2785,6 +2787,8 @@ function KurasiCard(_ref21) {
   }, "Lolos"), /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
       return onKurasi(aff.id, _objectSpread(_objectSpread({}, form), {}, {
+        username: aff.username,
+        linkTiktok: aff.linkTiktok,
         kurasi: "No"
       }));
     },
